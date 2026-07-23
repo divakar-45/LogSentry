@@ -40,6 +40,7 @@ public class ImportController {
         if (result == JFileChooser.APPROVE_OPTION) {
 
             File file = chooser.getSelectedFile();
+            System.out.println("Selected File: " + file.getAbsolutePath());
 
             try {
 

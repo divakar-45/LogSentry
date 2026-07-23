@@ -12,11 +12,13 @@ public class DetectionEngine {
 
     public DetectionEngine() {
 
-        rules = new ArrayList<>();
+    rules = new ArrayList<>();
 
-        rules.add(new BruteForceRule());
+    rules.add(new BruteForceRule());
+    rules.add(new MidnightLoginRule());
+    rules.add(new PasswordSprayRule());
 
-    }
+}
 
     public List<Alert> analyze(List<LogEntry> logs) {
 
