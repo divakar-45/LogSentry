@@ -1,5 +1,7 @@
 package controller;
 
+import detection.DetectionEngine;
+import model.Alert;
 import model.LogEntry;
 import service.LogService;
 import ui.DashboardPanel;
@@ -14,16 +16,16 @@ public class ImportController {
     private DashboardPanel dashboardPanel;
     private StatusBarPanel statusBarPanel;
     private LogService logService;
+    private DetectionEngine detectionEngine;
 
-    public ImportController(
-            DashboardPanel dashboardPanel,
-            StatusBarPanel statusBarPanel
-    ) {
+    public ImportController(DashboardPanel dashboardPanel,
+                            StatusBarPanel statusBarPanel) {
 
         this.dashboardPanel = dashboardPanel;
         this.statusBarPanel = statusBarPanel;
 
         logService = new LogService();
+        detectionEngine = new DetectionEngine();
 
     }
 
@@ -45,15 +47,32 @@ public class ImportController {
 
                 dashboardPanel.updateTotalLogs(logs.size());
 
-                dashboardPanel.addAlert(
-                        "Imported : " + file.getName()
-                );
+                List<Alert> alerts = detectionEngine.analyze(logs);
+
+                dashboardPanel.clearAlerts();
+
+                for (Alert alert : alerts) {
+
+                    dashboardPanel.addAlert(
+                            "[" + alert.getSeverity() + "] "
+                                    + alert.getRuleName()
+                                    + " | "
+                                    + alert.getSourceIP()
+                    );
+
+                }
 
                 statusBarPanel.setStatus(
-                        "Imported " + logs.size() + " log entries."
+                        "Imported "
+                                + logs.size()
+                                + " logs | "
+                                + alerts.size()
+                                + " alerts detected."
                 );
 
-            } catch (Exception ex) {
+            }
+
+            catch (Exception ex) {
 
                 JOptionPane.showMessageDialog(
                         parent,

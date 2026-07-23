@@ -62,5 +62,10 @@ public class DashboardPanel extends JPanel {
         recentAlertsArea.append(alert + "\n");
 
     }
+    public void clearAlerts() {
+
+    recentAlertsArea.setText("");
+
+}
 
 }
