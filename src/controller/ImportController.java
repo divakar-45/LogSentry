@@ -52,16 +52,11 @@ public class ImportController {
 
                 dashboardPanel.clearAlerts();
 
-                for (Alert alert : alerts) {
+             for (Alert alert : alerts) {
 
-                    dashboardPanel.addAlert(
-                            "[" + alert.getSeverity() + "] "
-                                    + alert.getRuleName()
-                                    + " | "
-                                    + alert.getSourceIP()
-                    );
+    dashboardPanel.addAlert(alert);
 
-                }
+}
 
                 statusBarPanel.setStatus(
                         "Imported "

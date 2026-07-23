@@ -1,14 +1,21 @@
 package ui;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 
+import model.Alert;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.BorderFactory;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
 
 public class DashboardPanel extends JPanel {
 
@@ -18,13 +25,17 @@ public class DashboardPanel extends JPanel {
     private JLabel mediumLabel;
     private JLabel lowLabel;
 
-    private JTextArea recentAlertsArea;
+    private JTable alertTable;
+    private DefaultTableModel tableModel;
+    private List<Alert> displayedAlerts =new ArrayList<>();    
+
 
     public DashboardPanel() {
 
         setLayout(new BorderLayout(10,10));
 
         JPanel statisticsPanel = new JPanel(new GridLayout(5,1,5,5));
+
         statisticsPanel.setBorder(BorderFactory.createTitledBorder("Statistics"));
 
         totalLogsLabel = new JLabel("Total Logs : 0");
@@ -39,32 +50,71 @@ public class DashboardPanel extends JPanel {
         statisticsPanel.add(mediumLabel);
         statisticsPanel.add(lowLabel);
 
-        recentAlertsArea = new JTextArea();
-        recentAlertsArea.setEditable(false);
-        recentAlertsArea.setFont(new Font("Monospaced",Font.PLAIN,13));
+        tableModel = new DefaultTableModel();
 
-        JScrollPane scrollPane = new JScrollPane(recentAlertsArea);
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Recent Alerts"));
+        tableModel.addColumn("Severity");
+        tableModel.addColumn("Rule");
+        tableModel.addColumn("Source IP");
+        tableModel.addColumn("Description");
 
-        add(statisticsPanel,BorderLayout.WEST);
-        add(scrollPane,BorderLayout.CENTER);
+        alertTable = new JTable(tableModel);
+
+        JScrollPane scrollPane = new JScrollPane(alertTable);
+
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Detected Alerts"));
+      alertTable.addMouseListener(new java.awt.event.MouseAdapter() {
+
+    @Override
+    public void mousePressed(java.awt.event.MouseEvent e) {
+
+        if (e.getClickCount() >= 2 && SwingUtilities.isLeftMouseButton(e)) {
+
+            int row = alertTable.rowAtPoint(e.getPoint());
+
+            if (row != -1) {
+
+                Alert alert = displayedAlerts.get(row);
+
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(DashboardPanel.this);
+
+                new AlertDetailsDialog(frame, alert).setVisible(true);
+            }
+        }
+    }
+
+});
+
+        add(statisticsPanel, BorderLayout.WEST);
+        add(scrollPane, BorderLayout.CENTER);
 
     }
 
-    public void updateTotalLogs(int total){
+    public void updateTotalLogs(int total) {
 
         totalLogsLabel.setText("Total Logs : " + total);
 
     }
 
-    public void addAlert(String alert){
-
-        recentAlertsArea.append(alert + "\n");
-
-    }
     public void clearAlerts() {
 
-    recentAlertsArea.setText("");
+    tableModel.setRowCount(0);
+
+    displayedAlerts.clear();
+
+}
+
+   public void addAlert(Alert alert) {
+
+    displayedAlerts.add(alert);
+
+    tableModel.addRow(new Object[]{
+
+            alert.getSeverity(),
+            alert.getRuleName(),
+            alert.getSourceIP(),
+            alert.getDescription()
+
+    });
 
 }
 
