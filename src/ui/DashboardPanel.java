@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
@@ -29,6 +30,10 @@ public class DashboardPanel extends JPanel {
     private JLabel highLabel;
     private JLabel mediumLabel;
     private JLabel lowLabel;
+    private JLabel topIpLabel;
+    private JLabel topUserLabel;
+    private JLabel topRuleLabel;
+    private JLabel highestRiskLabel;
 
     private JTable alertTable;
     private DefaultTableModel tableModel;
@@ -53,12 +58,28 @@ public class DashboardPanel extends JPanel {
         highLabel = new JLabel("High : 0");
         mediumLabel = new JLabel("Medium : 0");
         lowLabel = new JLabel("Low : 0");
+        topIpLabel = new JLabel("Top Attacking IP : -");
+
+topUserLabel = new JLabel("Most Targeted User : -");
+
+topRuleLabel = new JLabel("Most Triggered Rule : -");
+
+highestRiskLabel = new JLabel("Highest Risk Alert : 0/100");
 
         statisticsPanel.add(totalLogsLabel);
         statisticsPanel.add(criticalLabel);
         statisticsPanel.add(highLabel);
         statisticsPanel.add(mediumLabel);
         statisticsPanel.add(lowLabel);
+        statisticsPanel.add(new JSeparator());
+
+statisticsPanel.add(topIpLabel);
+
+statisticsPanel.add(topUserLabel);
+
+statisticsPanel.add(topRuleLabel);
+
+statisticsPanel.add(highestRiskLabel);
 
         tableModel = new DefaultTableModel();
 
@@ -206,6 +227,52 @@ private void applyFilter() {
 public List<Alert> getDisplayedAlerts() {
 
     return displayedAlerts;
+
+}
+public void updateCriticalCount(int value) {
+
+    criticalLabel.setText("Critical : " + value);
+
+}
+
+public void updateHighCount(int value) {
+
+    highLabel.setText("High : " + value);
+
+}
+
+public void updateMediumCount(int value) {
+
+    mediumLabel.setText("Medium : " + value);
+
+}
+
+public void updateLowCount(int value) {
+
+    lowLabel.setText("Low : " + value);
+
+}
+public void updateTopIp(String ip){
+
+    topIpLabel.setText("Top Attacking IP : " + ip);
+
+}
+
+public void updateTopUser(String user){
+
+    topUserLabel.setText("Most Targeted User : " + user);
+
+}
+
+public void updateTopRule(String rule){
+
+    topRuleLabel.setText("Most Triggered Rule : " + rule);
+
+}
+
+public void updateHighestRisk(int risk){
+
+    highestRiskLabel.setText("Highest Risk Alert : " + risk + "/100");
 
 }
 

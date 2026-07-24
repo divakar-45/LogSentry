@@ -11,6 +11,9 @@ import ui.TimelinePanel;
 import javax.swing.*;
 import java.io.File;
 import java.util.List;
+import model.RiskScore;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ImportController {
 
@@ -70,6 +73,114 @@ for (LogEntry log : logs) {
                 dashboardPanel.updateTotalLogs(logs.size());
 
                 List<Alert> alerts = detectionEngine.analyze(logs);
+                Map<String,Integer> ipCount = new HashMap<>();
+
+Map<String,Integer> userCount = new HashMap<>();
+
+Map<String,Integer> ruleCount = new HashMap<>();
+
+int highestRisk = 0;
+                int critical = 0;
+int high = 0;
+int medium = 0;
+int low = 0;
+
+for (Alert alert : alerts) {
+    ruleCount.put(
+        alert.getRuleName(),
+        ruleCount.getOrDefault(alert.getRuleName(),0)+1
+);
+
+ipCount.put(
+        alert.getSourceIP(),
+        ipCount.getOrDefault(alert.getSourceIP(),0)+1
+);
+
+highestRisk = Math.max(
+        highestRisk,
+        RiskScore.calculate(alert)
+);
+
+    switch (alert.getSeverity()) {
+
+        case CRITICAL:
+            critical++;
+            break;
+
+        case HIGH:
+            high++;
+            break;
+
+        case MEDIUM:
+            medium++;
+            break;
+
+        case LOW:
+            low++;
+            break;
+    }
+
+}
+String topRule = "-";
+
+int maxRule = 0;
+
+for(Map.Entry<String,Integer> entry : ruleCount.entrySet()){
+
+    if(entry.getValue()>maxRule){
+
+        maxRule = entry.getValue();
+
+        topRule = entry.getKey();
+
+    }
+
+}
+
+String topIp = "-";
+
+int maxIp = 0;
+
+for(Map.Entry<String,Integer> entry : ipCount.entrySet()){
+
+    if(entry.getValue()>maxIp){
+
+        maxIp = entry.getValue();
+
+        topIp = entry.getKey();
+
+    }
+
+}
+for(LogEntry log : logs){
+
+    userCount.put(
+            log.getUsername(),
+            userCount.getOrDefault(log.getUsername(),0)+1
+    );
+
+}
+
+String topUser = "-";
+
+int maxUser = 0;
+
+for(Map.Entry<String,Integer> entry : userCount.entrySet()){
+
+    if(entry.getValue()>maxUser){
+
+        maxUser = entry.getValue();
+
+        topUser = entry.getKey();
+
+    }
+
+}
+
+dashboardPanel.updateCriticalCount(critical);
+dashboardPanel.updateHighCount(high);
+dashboardPanel.updateMediumCount(medium);
+dashboardPanel.updateLowCount(low);
 
                 dashboardPanel.clearAlerts();
 
@@ -78,6 +189,10 @@ for (LogEntry log : logs) {
     dashboardPanel.addAlert(alert);
 
 }
+dashboardPanel.updateTopIp(topIp);
+dashboardPanel.updateTopRule(topRule);
+dashboardPanel.updateTopUser(topUser);
+dashboardPanel.updateHighestRisk(highestRisk);
 
                 statusBarPanel.setStatus(
                         "Imported "
