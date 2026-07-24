@@ -6,6 +6,7 @@ import model.LogEntry;
 import service.LogService;
 import ui.DashboardPanel;
 import ui.StatusBarPanel;
+import ui.TimelinePanel;
 
 import javax.swing.*;
 import java.io.File;
@@ -17,12 +18,15 @@ public class ImportController {
     private StatusBarPanel statusBarPanel;
     private LogService logService;
     private DetectionEngine detectionEngine;
+    private TimelinePanel timelinePanel;
 
     public ImportController(DashboardPanel dashboardPanel,
-                            StatusBarPanel statusBarPanel) {
+                        StatusBarPanel statusBarPanel,
+                        TimelinePanel timelinePanel){
 
         this.dashboardPanel = dashboardPanel;
         this.statusBarPanel = statusBarPanel;
+        this.timelinePanel = timelinePanel;
 
         logService = new LogService();
         detectionEngine = new DetectionEngine();
@@ -45,6 +49,23 @@ public class ImportController {
             try {
 
                 List<LogEntry> logs = logService.importLogs(file);
+                timelinePanel.clearTimeline();
+
+for (LogEntry log : logs) {
+
+    timelinePanel.addEvent(
+
+            log.getDate()
+                    + " | "
+                    + log.getStatus()
+                    + " | "
+                    + log.getUsername()
+                    + " | "
+                    + log.getIpAddress()
+
+    );
+
+}
 
                 dashboardPanel.updateTotalLogs(logs.size());
 

@@ -16,6 +16,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.JTextField;
+import javax.swing.JComboBox;
+import javax.swing.JButton;
+import javax.swing.RowFilter;
+import javax.swing.table.TableRowSorter;
 
 public class DashboardPanel extends JPanel {
 
@@ -27,6 +32,11 @@ public class DashboardPanel extends JPanel {
 
     private JTable alertTable;
     private DefaultTableModel tableModel;
+    private JTextField searchField;
+    private JComboBox<String> severityFilter;
+    private JButton searchButton;
+
+    private TableRowSorter<DefaultTableModel> sorter;
     private List<Alert> displayedAlerts =new ArrayList<>();    
 
 
@@ -58,6 +68,32 @@ public class DashboardPanel extends JPanel {
         tableModel.addColumn("Description");
 
         alertTable = new JTable(tableModel);
+        sorter = new TableRowSorter<>(tableModel);
+
+        alertTable.setRowSorter(sorter);
+        JPanel searchPanel = new JPanel();
+
+        searchField = new JTextField(20);
+
+        severityFilter = new JComboBox<>();
+
+        severityFilter.addItem("ALL");
+        severityFilter.addItem("LOW");
+        severityFilter.addItem("MEDIUM");
+        severityFilter.addItem("HIGH");
+        severityFilter.addItem("CRITICAL");
+
+        searchButton = new JButton("Search");
+
+        searchPanel.add(new JLabel("Search"));
+
+        searchPanel.add(searchField);
+
+        searchPanel.add(new JLabel("Severity"));
+
+        searchPanel.add(severityFilter);
+
+        searchPanel.add(searchButton);
 
         JScrollPane scrollPane = new JScrollPane(alertTable);
 
@@ -85,7 +121,16 @@ public class DashboardPanel extends JPanel {
 });
 
         add(statisticsPanel, BorderLayout.WEST);
-        add(scrollPane, BorderLayout.CENTER);
+       JPanel centerPanel = new JPanel(new BorderLayout());
+
+        centerPanel.add(searchPanel, BorderLayout.NORTH);
+
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+
+        add(centerPanel, BorderLayout.CENTER);
+        searchButton.addActionListener(e -> applyFilter());
+
+        severityFilter.addActionListener(e -> applyFilter());
 
     }
 
@@ -115,6 +160,52 @@ public class DashboardPanel extends JPanel {
             alert.getDescription()
 
     });
+
+}
+private void applyFilter() {
+
+    String text = searchField.getText().trim();
+
+    String severity = severityFilter.getSelectedItem().toString();
+
+    RowFilter<DefaultTableModel, Object> filter = new RowFilter<>() {
+
+        @Override
+        public boolean include(Entry<? extends DefaultTableModel, ? extends Object> entry) {
+
+            boolean textMatch = text.isEmpty();
+
+            if (!textMatch) {
+
+                for (int i = 0; i < entry.getValueCount(); i++) {
+
+                    if (entry.getStringValue(i).toLowerCase().contains(text.toLowerCase())) {
+
+                        textMatch = true;
+
+                        break;
+
+                    }
+
+                }
+
+            }
+
+            boolean severityMatch = severity.equals("ALL") ||
+                    entry.getStringValue(0).equalsIgnoreCase(severity);
+
+            return textMatch && severityMatch;
+
+        }
+
+    };
+
+    sorter.setRowFilter(filter);
+
+}
+public List<Alert> getDisplayedAlerts() {
+
+    return displayedAlerts;
 
 }
 
