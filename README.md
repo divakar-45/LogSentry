@@ -14,6 +14,9 @@ The primary objective of this project is to demonstrate core SOC concepts such a
 
 ---
 
+## Demo Video Link
+https://drive.google.com/file/d/1m2i7M1_SE3j5-6z_lHk1l865FYzeocCb/view?usp=drive_link
+
 ##  Features
 
 ### Log Management
